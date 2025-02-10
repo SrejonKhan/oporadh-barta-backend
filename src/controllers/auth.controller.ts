@@ -19,7 +19,8 @@ import {
 import logger from "../utils/logger";
 import { NextFunction, Request, Response } from "express";
 import { excludeFromObject } from "../utils/object";
-import { sendToExchange } from "../lib/amqp";
+import { consume, sendToExchange } from "../lib/amqp";
+import axios from "axios";
 
 const signIn = async (req, res, next) => {
   try {
@@ -43,8 +44,8 @@ const signIn = async (req, res, next) => {
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = signUpSchema.parse(req.body);
-    const { email, password, username, displayName } = payload;
-    const { user, token } = await handleUserSignUp(email, password, username, displayName);
+    const { email, password, username, displayName, phoneNumber } = payload;
+    const { user, token } = await handleUserSignUp(email, password, username, displayName, phoneNumber);
 
     logger.info(`New user created. UserID: ${user.id}.`);
 
@@ -54,6 +55,7 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
       token,
     };
     sendToExchange("exchange.mail", "user", user);
+
     res.status(httpStatus.OK).send(body);
   } catch (ex) {
     next(ex);

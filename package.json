@@ -11,7 +11,7 @@
     ]
   },
   "scripts": {
-    "docker:dev": "npm run generate-swagger:docker && docker compose -f ./docker/compose.dev.yml down && docker compose -f ./docker/compose.dev.yml up --no-attach swagger-ui",
+    "docker:dev": "npm run generate-swagger:docker && docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up --no-attach swagger-ui",
     "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
     "docker:dev:restart": "docker compose -f docker-compose.dev.yml restart",
     "docker:dev:build-up": "docker compose -f docker-compose.dev.yml up --build",

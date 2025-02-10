@@ -18,20 +18,28 @@ model User {
   createdAt              DateTime                @default(now())
   email                  String                  @unique
   username               String                  @unique
+  phoneNumber            String                  @unique
   displayName            String?
   passwordHash           String
+  isVerified             Boolean                 @default(false)
   role                   Role                    @default(USER)
   authType               AuthType                @default(EMAILPASS)
+  otpSecret              OtpSecret[]          
   userProfile            UserProfile?
-  clubMemberInfo         ClubMemberInfo?
   changePasswordRequests ChangePasswordRequest[]
+}
+
+model OtpSecret {
+  id        Int      @id @default(autoincrement())
+  secret    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+  createdAt DateTime @default(now())
 }
 
 enum Role {
   USER
   ADMIN
-  FACULTY
-  MEMBER
 }
 
 enum AuthType {
@@ -44,9 +52,6 @@ model UserProfile {
   designation  String?
   avatarUrl    String?
   socialLinks  SocialLink[]
-  tenureStart  DateTime
-  tenureEnd    DateTime
-  clubGoals    String?
   user         User         @relation(fields: [userId], references: [id])
   userId       Int          @unique
 }
@@ -66,33 +71,6 @@ enum SocialLinkHost {
   MAIL
   TWITTER
   UNKNOWN
-}
-
-model ClubMemberInfo {
-  memberId    Int        @unique
-  designation MemberRole @default(MEMBER)
-  tenureStart DateTime
-  tenureEnd   DateTime
-  clubGoals   String?
-  user        User       @relation(fields: [userId], references: [id])
-  userId      Int        @unique
-}
-
-enum MemberRole {
-  PRESIDENT
-  GENERAL_SECRETARY
-  VP_TECHNICAL
-  VP_ORGANIZING
-  VP_PUBLIC_RELATION
-  TREASURER
-  JOINT_SECRETARY
-  ASSISTANT_SECRETARY_TECHNICAL
-  ASSISTANT_SECRETARY_ORGANIZING
-  ASSISTANT_SECRETARY_PUBLIC_RELATION
-  ASSISTANT_SECRETARY_BRAND_MANAGEMENT
-  ASSISTANT_TREASURER
-  EXECUTIVE_MEMBER
-  MEMBER
 }
 
 model ChangePasswordRequest {

@@ -39,7 +39,13 @@ const handleUserSignIn = async (email: string, password: string) => {
   };
 };
 
-const handleUserSignUp = async (email: string, password: string, username: string, displayName: string) => {
+const handleUserSignUp = async (
+  email: string,
+  password: string,
+  username: string,
+  displayName: string,
+  phoneNumber: string
+) => {
   const userWithEmail = await prisma.user.findUnique({
     where: { email: email },
   });
@@ -64,11 +70,47 @@ const handleUserSignUp = async (email: string, password: string, username: strin
       username: username,
       displayName: displayName,
       passwordHash: passwordHash,
+      phoneNumber: phoneNumber,
+    },
+  });
+
+  const secretNumber = Math.floor(100000 + Math.random() * 900000);
+  const otpSecret = await prisma.otpSecret.create({
+    data: {
+      userId: user.id,
+      secret: secretNumber.toString(),
     },
   });
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
+
+  const smsBody = {
+    api_key: process.env.SMS_API_KEY,
+    type: "text",
+    number: phoneNumber,
+    senderid: process.env.SMS_SENDER_ID,
+    message: `Welcome to our platform, ${displayName}! To verify your phone number, please use the following OTP: ${otpSecret.secret}`,
+  };
+
+  try {
+    await axios.get("https://bulksmsbd.net/api/smsapi", {
+      params: smsBody,
+    });
+  } catch (error) {
+    logger.error(`Error sending SMS to ${phoneNumber}. Error: ${error.message}`);
+  }
+
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      otpSecret: {
+        connect: { id: otpSecret.id },
+      },
+    },
+  });
 
   return {
     user: excludeFromObject(user, ["passwordHash"]),
@@ -253,6 +295,7 @@ const handleGoogleSignIn = async (code: string) => {
         displayName: googleUserData.name,
         passwordHash: "",
         authType: "OAUTH",
+        phoneNumber: "",
       },
     });
     logger.info(`New user created using Google OAuth. UserID: ${user.id}.`);

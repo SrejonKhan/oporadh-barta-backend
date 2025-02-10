@@ -15,6 +15,7 @@ const signUpSchema = z
     }),
     username: z.string().min(3, { message: "Username must be 3 or more characters long." }),
     displayName: z.string().min(3, { message: "Display Name must be 3 or more characters long." }).optional(),
+    phoneNumber: z.string().length(11, { message: "Phone number must be 11 or more characters long." }),
   })
   .openapi({
     description: "Email-Pass Signup payload Schema",

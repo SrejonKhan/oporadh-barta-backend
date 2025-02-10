@@ -19,6 +19,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # networks:
+    #   - default_netwowrk
 
   # PostgreSQL
   postgres:
@@ -36,7 +38,9 @@ services:
       retries: 5
       start_period: 30s
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./data/pgdata:/var/lib/postgresql/data
+    # networks:
+    #   - default_netwowrk
 
   # Swagger UI
   swagger-ui:
@@ -65,6 +69,11 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    # networks:
+    #   - default_netwowrk
 
 volumes:
   pgdata:
+# networks:
+#   default_netwowrk:
+#     driver: bridge
