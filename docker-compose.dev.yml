@@ -6,13 +6,13 @@ services:
   app:
     container_name: nodets-rest-api-server
     build:
-      context: ..
+      context: .
       dockerfile: docker/dev.Dockerfile
     ports:
       - 2222:2222 # main app
       - 5555:5555 # prisma studio
     volumes:
-      - ..:/home/node/app
+      - .:/home/node/app
       - /home/node/app/node_modules
     links:
       - postgres
