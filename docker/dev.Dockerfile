@@ -10,5 +10,7 @@ COPY --chown=node:node . .
 
 RUN npm ci
 
+RUN npm run generate-swagger
+
 # CMD ["ls"] 
 CMD ["npm", "run", "dev"] 
