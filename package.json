@@ -11,6 +11,10 @@
     ]
   },
   "scripts": {
+    "docker:dev": "npm run generate-swagger:docker && docker compose -f ./docker/compose.dev.yml down && docker compose -f ./docker/compose.dev.yml up --no-attach swagger-ui",
+    "docker:dev:down": "docker compose -f docker-compose.dev.yml down",
+    "docker:dev:restart": "docker compose -f docker-compose.dev.yml restart",
+    "docker:dev:build-up": "docker compose -f docker-compose.dev.yml up --build",
     "test": "jest",
     "dev:nodets": "ts-node-dev --respawn --transpile-only src/app.ts",
     "dev": "npm run prisma-generate && npm run db-push && concurrently -r \"npm run prisma-studio\" \"ts-node-dev --respawn --transpile-only src/app.ts\"",
@@ -20,7 +24,6 @@
     "db-push": "prisma db push",
     "prisma-studio": "prisma studio",
     "prisma-generate": "prisma generate",
-    "docker:dev": "npm run generate-swagger:docker && docker compose -f ./docker/compose.dev.yml down && docker compose -f ./docker/compose.dev.yml up --no-attach swagger-ui",
     "pretty": "prettier . --write --config-precedence file-override --log-level debug",
     "pretty-check": "prettier . --check --config-precedence file-override --log-level debug"
   },
