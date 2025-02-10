@@ -46,7 +46,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ../docs/api:/docs
+      - ./docs/api:/docs
     environment:
       - SWAGGER_JSON=/docs/openapi-docs.yml
 
