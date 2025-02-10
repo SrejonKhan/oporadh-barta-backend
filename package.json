@@ -1,0 +1,71 @@
+{
+  "name": "nodets-rest-api-boilerplate",
+  "version": "0.1.0",
+  "description": "A REST API based Backend Boilerplate. Suitable for both Monolith and Microservice application.",
+  "main": "app.ts",
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "./tests/setup.ts"
+    ]
+  },
+  "scripts": {
+    "test": "jest",
+    "dev:nodets": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "dev": "npm run prisma-generate && npm run db-push && concurrently -r \"npm run prisma-studio\" \"ts-node-dev --respawn --transpile-only src/app.ts\"",
+    "build": "tsc -p tsconfig.json",
+    "generate-swagger": "ts-node-dev docs/api/generator.ts",
+    "generate-swagger:docker": "env SERVICE_HOST=http://localhost:2222 npm run generate-swagger",
+    "db-push": "prisma db push",
+    "prisma-studio": "prisma studio",
+    "prisma-generate": "prisma generate",
+    "docker:dev": "npm run generate-swagger:docker && docker compose -f ./docker/compose.dev.yml down && docker compose -f ./docker/compose.dev.yml up --no-attach swagger-ui",
+    "pretty": "prettier . --write --config-precedence file-override --log-level debug",
+    "pretty-check": "prettier . --check --config-precedence file-override --log-level debug"
+  },
+  "author": "Srejon Khan",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.12.7",
+    "concurrently": "^8.2.2",
+    "jest": "^29.7.0",
+    "prettier": "^4.0.0-alpha.9",
+    "prisma": "^5.13.0",
+    "supertest": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^7.0.0",
+    "@aws-sdk/client-s3": "^3.633.0",
+    "@babel/preset-env": "^7.24.8",
+    "@prisma/client": "^5.13.0",
+    "@types/amqplib": "^0.10.5",
+    "@types/bcrypt": "^5.0.2",
+    "@types/swagger-ui-express": "^4.1.6",
+    "amqplib": "^0.10.4",
+    "axios": "^1.7.2",
+    "babel-jest": "^29.7.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.1",
+    "helmet": "^7.1.0",
+    "http-status": "^1.7.4",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "swagger-ui-express": "^5.0.0",
+    "ts-jest": "^29.2.2",
+    "winston": "^3.13.0",
+    "yaml": "^2.4.2",
+    "zod": "^3.23.5",
+    "zod-validation-error": "^3.3.0"
+  }
+}

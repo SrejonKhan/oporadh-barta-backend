@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     Int                     @id @default(autoincrement())
+  createdAt              DateTime                @default(now())
+  email                  String                  @unique
+  username               String                  @unique
+  displayName            String?
+  passwordHash           String
+  role                   Role                    @default(USER)
+  authType               AuthType                @default(EMAILPASS)
+  userProfile            UserProfile?
+  clubMemberInfo         ClubMemberInfo?
+  changePasswordRequests ChangePasswordRequest[]
+}
+
+enum Role {
+  USER
+  ADMIN
+  FACULTY
+  MEMBER
+}
+
+enum AuthType {
+  EMAILPASS
+  OAUTH
+}
+
+model UserProfile {
+  profileIntro String?
+  designation  String?
+  avatarUrl    String?
+  socialLinks  SocialLink[]
+  tenureStart  DateTime
+  tenureEnd    DateTime
+  clubGoals    String?
+  user         User         @relation(fields: [userId], references: [id])
+  userId       Int          @unique
+}
+
+model SocialLink {
+  url         String
+  host        SocialLinkHost @default(UNKNOWN)
+  userProfile UserProfile    @relation(fields: [userId], references: [userId])
+  userId      Int            @unique
+}
+
+enum SocialLinkHost {
+  LINKEDIN
+  GITHUB
+  FACEBOOK
+  INSTAGRAM
+  MAIL
+  TWITTER
+  UNKNOWN
+}
+
+model ClubMemberInfo {
+  memberId    Int        @unique
+  designation MemberRole @default(MEMBER)
+  tenureStart DateTime
+  tenureEnd   DateTime
+  clubGoals   String?
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int        @unique
+}
+
+enum MemberRole {
+  PRESIDENT
+  GENERAL_SECRETARY
+  VP_TECHNICAL
+  VP_ORGANIZING
+  VP_PUBLIC_RELATION
+  TREASURER
+  JOINT_SECRETARY
+  ASSISTANT_SECRETARY_TECHNICAL
+  ASSISTANT_SECRETARY_ORGANIZING
+  ASSISTANT_SECRETARY_PUBLIC_RELATION
+  ASSISTANT_SECRETARY_BRAND_MANAGEMENT
+  ASSISTANT_TREASURER
+  EXECUTIVE_MEMBER
+  MEMBER
+}
+
+model ChangePasswordRequest {
+  token        String   @unique
+  reqIpAddress String
+  requestedAt  DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int      @unique
+}

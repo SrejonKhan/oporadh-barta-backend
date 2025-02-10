@@ -1,0 +1,54 @@
+version: "3.8"
+name: nodets-rest-api-boilerplate
+
+services:
+  # App Service
+  app:
+    container_name: nodets-rest-api-server
+    build:
+      context: ..
+      dockerfile: docker/dev.Dockerfile
+    ports:
+      - 2222:2222 # main app
+      - 5555:5555 # prisma studio
+    volumes:
+      - ..:/home/node/app
+      - /home/node/app/node_modules
+    links:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # PostgreSQL
+  postgres:
+    container_name: nodets-rest-api-postgres
+    image: postgres:16-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Swagger UI
+  swagger-ui:
+    container_name: nodets-rest-api-swagger-ui
+    image: swaggerapi/swagger-ui:latest
+    hostname: swagger-ui
+    ports:
+      - 8080:8080
+    volumes:
+      - ../docs/api:/docs
+    environment:
+      - SWAGGER_JSON=/docs/openapi-docs.yml
+
+volumes:
+  pgdata:
