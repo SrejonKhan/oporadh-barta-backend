@@ -6,8 +6,8 @@ import amqpConfig from "./config/amqp.config";
 
 const startServer = async () => {
   try {
-    await amqp.init(amqpConfig.EXCHANGES, amqpConfig.QUEUES, amqpConfig.BINDINGS);
-    logger.info(`Initialized RabbitMQ.`);
+    // await amqp.init(amqpConfig.EXCHANGES, amqpConfig.QUEUES, amqpConfig.BINDINGS);
+    // logger.info(`Initialized RabbitMQ.`);
 
     server.listen(config.PORT, async () => {
       logger.info(`Server is running on port ${config.PORT}`);

@@ -54,7 +54,7 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
       user,
       token,
     };
-    sendToExchange("exchange.mail", "user", user);
+    // sendToExchange("exchange.mail", "user", user);
 
     res.status(httpStatus.OK).send(body);
   } catch (ex) {
