@@ -283,10 +283,6 @@ export const handleGetAllReports = async () => {
         location: true,
         media: true,
       },
-      orderBy: {
-        upvotes: "desc",
-        downvotes: "asc",
-      },
     });
 
     return {
