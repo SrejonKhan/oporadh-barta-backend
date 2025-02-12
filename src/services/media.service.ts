@@ -5,6 +5,7 @@ import { uploadBuffer } from "./upload.service";
 import { ApiError as AppError } from "../utils/error";
 import httpStatus from "http-status";
 import { addWatermark } from "./image.service";
+import sharp from "sharp";
 
 const prisma = new PrismaClient();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -18,6 +19,14 @@ export const uploadMedia = async (file: Express.Multer.File, type: MediaType, us
   // Add watermark only to images
   if (type === MediaType.IMAGE) {
     processedBuffer = await addWatermark(file.buffer, username);
+  }
+
+  // Optimize image using sharp
+  if (type === MediaType.IMAGE) {
+    processedBuffer = await sharp(file.buffer)
+      .resize({ width: 800, height: 800, fit: sharp.fit.inside, withoutEnlargement: true }) // Resize to fit within 800x800, maintaining aspect ratio
+      .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+      .toBuffer();
   }
 
   const key = await uploadBuffer(processedBuffer, uniqueFileName, `media/${type}/${uniqueFileName}`);
