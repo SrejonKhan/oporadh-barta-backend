@@ -96,6 +96,8 @@ model CrimeReport {
   status      ReportStatus @default(PENDING)
   reporter    User     @relation(fields: [reporterId], references: [id])
   reporterId  Int
+  upvotes     Int          @default(0)
+  downvotes   Int          @default(0)
 }
 
 
