@@ -7,10 +7,21 @@ export const reportCrime = async (req: Request, res: Response, next: NextFunctio
   try {
     const payload = createCrimeReportSchema.parse(req.body);
 
-    const { title, description, location } = payload;
+    const { title, description, division, district, fullAddress, latitude, longitude, media } = payload;
+
     const files = req.files as Express.Multer.File[];
 
-    const report = await createCrimeReport(req.user.email, title, description, location, files);
+    const report = await createCrimeReport(
+      req.user.email,
+      title,
+      description,
+      division,
+      district,
+      fullAddress,
+      latitude,
+      longitude,
+      files
+    );
 
     const body = {
       message: "Crime report created successfully",

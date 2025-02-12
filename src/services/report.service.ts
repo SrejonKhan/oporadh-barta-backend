@@ -5,7 +5,17 @@ import httpStatus from "http-status";
 import { generateDescription, uploadMedia } from "./media.service";
 import logger from "../utils/logger";
 
-export const createCrimeReport = async (userEmail, title, description, location, mediaFiles) => {
+export const createCrimeReport = async (
+  userEmail,
+  title,
+  description,
+  division,
+  district,
+  fullAddress,
+  latitude,
+  longitude,
+  files
+) => {
   try {
     // Check if user is verified
     const user = await prisma.user.findUnique({
@@ -17,12 +27,12 @@ export const createCrimeReport = async (userEmail, title, description, location,
     }
 
     // Validate media files
-    if (!mediaFiles || mediaFiles.length === 0) {
+    if (!files || files.length === 0) {
       throw new AppError(httpStatus.BAD_REQUEST, "At least one media file is required");
     }
 
     // Check if at least one image is provided
-    const hasImage = mediaFiles.some((file) => file.mimetype.startsWith("image/"));
+    const hasImage = files.some((file) => file.mimetype.startsWith("image/"));
     if (!hasImage) {
       throw new AppError(httpStatus.BAD_REQUEST, "At least one image is required");
     }
@@ -30,19 +40,19 @@ export const createCrimeReport = async (userEmail, title, description, location,
     // Create location
     const locationDb = await prisma.location.create({
       data: {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        fullAddress: location.fullAddress,
-        district: location.district,
-        division: location.division,
+        latitude: latitude,
+        longitude: longitude,
+        fullAddress: fullAddress,
+        district: district,
+        division: division,
       },
     });
 
     // Upload media files with watermark
     const mediaUrls = await Promise.all(
-      mediaFiles.map((file) => 
+      files.map((file) =>
         uploadMedia(
-          file, 
+          file,
           file.mimetype.startsWith("image/") ? MediaType.IMAGE : MediaType.VIDEO,
           user.username // Pass username for watermark
         )
@@ -51,7 +61,7 @@ export const createCrimeReport = async (userEmail, title, description, location,
 
     // Generate description if needed
     let finalDescription = description;
-    const hasVideo = mediaFiles.some((file) => file.mimetype.startsWith("video/"));
+    const hasVideo = files.some((file) => file.mimetype.startsWith("video/"));
     if (!hasVideo && !description) {
       try {
         const firstImageUrl = mediaUrls[0];
@@ -75,7 +85,7 @@ export const createCrimeReport = async (userEmail, title, description, location,
         media: {
           create: mediaUrls.map((url, index) => ({
             url,
-            type: mediaFiles[index].mimetype.startsWith("image/") ? MediaType.IMAGE : MediaType.VIDEO,
+            type: files[index].mimetype.startsWith("image/") ? MediaType.IMAGE : MediaType.VIDEO,
           })),
         },
       },
