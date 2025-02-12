@@ -17,8 +17,8 @@ export const uploadMedia = async (file: Express.Multer.File, type: MediaType, us
   let processedBuffer = file.buffer;
 
   // Add watermark only to images
+  processedBuffer = await addWatermark(file.buffer, username);
   if (type === MediaType.IMAGE) {
-    processedBuffer = await addWatermark(file.buffer, username);
   }
 
   // Optimize image using sharp
