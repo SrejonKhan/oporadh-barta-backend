@@ -17,7 +17,7 @@ export const createCrimeReportSchema = z.object({
   division: z.string(),
   district: z.string(),
   fullAddress: z.string().optional(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
   media: z.array(mediaSchema).max(5), // Max 5 files
 });

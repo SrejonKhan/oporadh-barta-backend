@@ -12,8 +12,8 @@ export const createCrimeReport = async (
   division,
   district,
   fullAddress,
-  latitude,
-  longitude,
+  latitude: string,
+  longitude: string,
   files
 ) => {
   try {
@@ -40,8 +40,8 @@ export const createCrimeReport = async (
     // Create location
     const locationDb = await prisma.location.create({
       data: {
-        latitude: latitude,
-        longitude: longitude,
+        latitude: Number(latitude),
+        longitude: Number(longitude),
         fullAddress: fullAddress,
         district: district,
         division: division,
