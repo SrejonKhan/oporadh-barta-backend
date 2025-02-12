@@ -455,28 +455,28 @@ const checkPhoneNumber = async (email: string, username: string) => {
   }
 
   if (!user.phoneNumber) {
-    return { 
+    return {
       hasPhone: false,
-      message: "User does not have a registered phone number. Please contact support." 
+      message: "User does not have a registered phone number. Please contact support.",
     };
   }
 
-  return { 
+  return {
     hasPhone: true,
     maskedPhone: user.phoneNumber.replace(/(\d{2})(\d{6})(\d{2})/, "$1******$3"),
-    message: "Phone number found! Proceed with password reset." 
+    message: "Phone number found! Proceed with password reset.",
   };
 };
 
 const getAllUsers = async (page: number = 1, limit: number = 10) => {
   const skip = (page - 1) * limit;
-  
+
   const [users, total] = await Promise.all([
     prisma.user.findMany({
       skip,
       take: limit,
       orderBy: {
-        createdAt: 'desc'
+        createdAt: "desc",
       },
       select: {
         id: true,
@@ -489,10 +489,9 @@ const getAllUsers = async (page: number = 1, limit: number = 10) => {
         isAdminBan: true,
         banReason: true,
         createdAt: true,
-        updatedAt: true,
-      }
+      },
     }),
-    prisma.user.count()
+    prisma.user.count(),
   ]);
 
   return {
@@ -501,8 +500,8 @@ const getAllUsers = async (page: number = 1, limit: number = 10) => {
       total,
       page,
       limit,
-      totalPages: Math.ceil(total / limit)
-    }
+      totalPages: Math.ceil(total / limit),
+    },
   };
 };
 
