@@ -107,7 +107,7 @@ export const createCrimeReport = async (
       report: JSON.stringify(report),
     };
   } catch (error) {
-    if (error instanceof AppError) throw error;
+    // if (error instanceof AppError) throw error;
     logger.error("Crime Report Creation Error:", error);
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to create crime report");
   }
