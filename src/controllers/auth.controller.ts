@@ -20,6 +20,8 @@ import {
   handleUserSignIn,
   handleUserSignUp,
   handleVerifyOTP,
+  checkPhoneNumber,
+  getAllUsers,
 } from "../services/auth.service";
 import logger from "../utils/logger";
 import { NextFunction, Request, Response } from "express";
@@ -86,13 +88,13 @@ const changePassword = async (req: Request, res: Response, next: NextFunction) =
     const payload = changePasswordSchema.parse(req.body);
     const { email, username } = payload;
 
-    const { maskedEmail } = await handleChangePassword(email, username, req.ip);
+    const { maskedPhone } = await handleChangePassword(email, username, req.ip);
 
-    logger.info(`Change Password requested for ${maskedEmail}.`);
+    logger.info(`Change Password requested for user with phone ${maskedPhone}`);
 
     const body = {
-      message: "Successfully sent Change Password Link to registered email address.",
-      maskedEmail,
+      message: "Successfully sent reset code to your registered phone number.",
+      maskedPhone,
     };
 
     res.status(httpStatus.OK).send(body);
@@ -192,6 +194,37 @@ const banUser = async (req: Request, res: Response, next: NextFunction) => {
     next(ex);
   }
 };
+
+const checkUserPhone = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const payload = changePasswordSchema.parse(req.body);
+    const { email, username } = payload;
+
+    const response = await checkPhoneNumber(email, username);
+
+    logger.info(`Phone number check requested for ${email || username}`);
+
+    res.status(httpStatus.OK).send(response);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const response = await getAllUsers(page, limit);
+
+    logger.info(`Users list retrieved. Page: ${page}, Limit: ${limit}`);
+
+    res.status(httpStatus.OK).send(response);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
 export {
   signIn,
   signUp,
@@ -203,4 +236,6 @@ export {
   verifyOtp,
   sendNewOtp,
   banUser,
+  checkUserPhone,
+  getUsers,
 };

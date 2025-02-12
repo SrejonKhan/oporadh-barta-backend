@@ -10,6 +10,8 @@ import {
   signUp,
   verifyOtp,
   whoami,
+  checkUserPhone,
+  getUsers,
 } from "../../controllers/auth.controller";
 import { hasRole, requireAuth } from "../../middlewares/auth.middleware";
 import { Role } from "@prisma/client";
@@ -27,5 +29,7 @@ authRouter.post("/google-signin", googleOAuth2SignIn);
 authRouter.post("/verify-otp", hasRole(["*"]), verifyOtp);
 authRouter.post("/send-new-otp", hasRole(["*"]), sendNewOtp);
 authRouter.post("/ban-user", hasRole([Role.ADMIN]), banUser);
+authRouter.post("/check-phone", checkUserPhone);
+authRouter.get("/users", hasRole([Role.ADMIN]), getUsers);
 
 export default authRouter;

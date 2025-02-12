@@ -120,8 +120,8 @@ registry.registerPath({
 registry.registerPath({
   method: "post",
   path: "/auth/change-password",
-  summary: "Request a change password.",
-  description: `A change password email will be sent to the registered email address of user, proper security added to prevent spamming.`,
+  summary: "Request a password reset",
+  description: `A 6-digit reset code will be sent via SMS to the user's registered phone number. Includes rate limiting to prevent spam.`,
   security: [],
   tags: ["Authentication"],
   request: {
@@ -129,8 +129,8 @@ registry.registerPath({
       content: {
         "application/json": {
           schema: z.object({
-            email: z.string().email(),
-            username: z.string().min(3),
+            email: z.string().email().describe("User's email address"),
+            username: z.string().min(3).describe("User's username"),
           }),
         },
       },
@@ -138,7 +138,35 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Object with a message and masked email address.",
+      description: "Success response with masked phone number",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string().describe("Success message"),
+            maskedPhone: z.string().describe("Masked phone number (e.g. 88******75)"),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "Error responses",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string().describe("Error message"),
+          }).describe("Possible errors: User not found, No phone number, Recent request exists"),
+        },
+      },
+    },
+    500: {
+      description: "SMS sending failed",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string().describe("SMS sending failed message"),
+          }),
+        },
+      },
     },
   },
 });
@@ -146,20 +174,42 @@ registry.registerPath({
 registry.registerPath({
   method: "post",
   path: "/auth/redeem-change-password",
-  summary: "Redeem change password token.",
-  description: `User password will be updated to the provided password if token is valid and never redeemed before.`,
+  summary: "Reset password using SMS code",
+  description: `Reset user password using the 6-digit code received via SMS and the new password. Code expires after 15 minutes.`,
   security: [],
   tags: ["Authentication"],
   request: {
     body: {
       content: {
-        "application/json": { schema: redeemChangePasswordSchema },
+        "application/json": {
+          schema: z.object({
+            token: z.string().length(6).describe("6-digit SMS code received"),
+            password: z.string().min(8).describe("New password"),
+          }),
+        },
       },
     },
   },
   responses: {
     200: {
-      description: "Object with a message.",
+      description: "Password successfully changed",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string().describe("Success message"),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "Error response",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string().describe("Error message"),
+          }).describe("Possible errors: Invalid code, Expired code"),
+        },
+      },
     },
   },
 });
@@ -246,6 +296,102 @@ registry.registerPath({
   responses: {
     200: {
       description: "Object with a message.",
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/auth/check-phone",
+  summary: "Check user's phone number",
+  description: `Check if user has a registered phone number before initiating password reset. Returns masked phone number if exists.`,
+  security: [],
+  tags: ["Authentication"],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            email: z.string().email().describe("User's email address"),
+            username: z.string().min(3).describe("User's username"),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Phone number check response",
+      content: {
+        "application/json": {
+          schema: z.object({
+            hasPhone: z.boolean().describe("Whether user has a registered phone"),
+            maskedPhone: z.string().optional().describe("Masked phone number if exists (e.g. 88******75)"),
+            message: z.string().describe("Response message"),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "Error response",
+      content: {
+        "application/json": {
+          schema: z.object({
+            message: z.string().describe("Error message"),
+          }).describe("Possible error: User not found"),
+        },
+      },
+    },
+  },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/auth/users",
+  summary: "Get all users",
+  description: "Retrieve paginated list of all users. Admin access only.",
+  security: [{ [bearerAuth.name]: [] }],
+  tags: ["Authentication"],
+  request: {
+    params: z.object({
+      page: z.string().optional().describe("Page number (default: 1)"),
+      limit: z.string().optional().describe("Items per page (default: 10)"),
+    }),
+  },
+  responses: {
+    200: {
+      description: "List of users with pagination metadata",
+      content: {
+        "application/json": {
+          schema: z.object({
+            users: z.array(z.object({
+              id: z.string(),
+              email: z.string(),
+              username: z.string(),
+              displayName: z.string(),
+              phoneNumber: z.string(),
+              role: z.enum(["USER", "ADMIN"]),
+              isVerified: z.boolean(),
+              isAdminBan: z.boolean(),
+              banReason: z.string().nullable(),
+              createdAt: z.string(),
+              updatedAt: z.string(),
+            })),
+            metadata: z.object({
+              total: z.number().describe("Total number of users"),
+              page: z.number().describe("Current page"),
+              limit: z.number().describe("Items per page"),
+              totalPages: z.number().describe("Total number of pages"),
+            }),
+          }),
+        },
+      },
+    },
+    401: {
+      description: "Unauthorized - Invalid or missing token",
+    },
+    403: {
+      description: "Forbidden - User is not an admin",
     },
   },
 });

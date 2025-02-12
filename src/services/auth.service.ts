@@ -158,7 +158,11 @@ const handleChangePassword = async (email: string, username: string, ipAddress: 
     throw new ApiError(400, "User doesn't exist with the provided email/username!");
   }
 
-  // make sure that no one is spamming or requesting too many change pass req.
+  if (!user.phoneNumber) {
+    throw new ApiError(400, "User doesn't have a registered phone number!");
+  }
+
+  // Check for existing recent requests
   const tokens = await prisma.changePasswordRequest.findMany({
     where: {
       AND: [{ userId: user.id }],
@@ -166,18 +170,18 @@ const handleChangePassword = async (email: string, username: string, ipAddress: 
   });
 
   const currentTime = new Date().getTime();
-  const FIFTEEN_MINS = 15 * 60 * 1000; /* ms */
+  const FIFTEEN_MINS = 15 * 60 * 1000;
   for (const token of tokens) {
     if (currentTime - token.requestedAt.getTime() < FIFTEEN_MINS) {
       throw new ApiError(
         httpStatus.BAD_REQUEST,
-        "A change password is requested just a while ago and never redeemed. Wait for a moment before requesting again."
+        "A change password request was made recently. Please wait before requesting again."
       );
     }
   }
 
-  // create token
-  const changePassToken = randomBytes(32).toString("hex");
+  // Generate 6-digit token
+  const changePassToken = Math.floor(100000 + Math.random() * 900000).toString();
 
   await prisma.changePasswordRequest.create({
     data: {
@@ -187,17 +191,25 @@ const handleChangePassword = async (email: string, username: string, ipAddress: 
     },
   });
 
-  // send to exchange
-  const exchangeContent = {
-    email: user.email,
-    changePassJwtToken: changePassToken,
-    reqTime: Date.now(),
-    reqIpAddress: ipAddress,
+  // Send SMS with token
+  const smsBody = {
+    api_key: process.env.SMS_API_KEY,
+    type: "text",
+    number: user.phoneNumber,
+    senderid: process.env.SMS_SENDER_ID,
+    message: `Your password reset code is: ${changePassToken}. This code will expire in 15 minutes.`,
   };
 
-  sendToExchange("exchange.mail", "change_pass", exchangeContent);
+  try {
+    await axios.get("https://bulksmsbd.net/api/smsapi", {
+      params: smsBody,
+    });
+  } catch (error) {
+    logger.error(`Error sending SMS to ${user.phoneNumber}. Error: ${error.message}`);
+    throw new ApiError(500, "Failed to send reset code via SMS");
+  }
 
-  return { maskedEmail: maskEmailAddress(user.email) };
+  return { maskedPhone: user.phoneNumber.replace(/(\d{2})(\d{6})(\d{2})/, "$1******$3") };
 };
 
 const handleRedeemChangePassword = async (token: string, password: string, ipAddress: string) => {
@@ -432,6 +444,68 @@ const handleBanUser = async (email: string, banReason: string) => {
 
   return { message: "User is banned successfully!" };
 };
+
+const checkPhoneNumber = async (email: string, username: string) => {
+  const user = await prisma.user.findFirst({
+    where: { OR: [{ email: email }, { username: username }] },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "User doesn't exist with the provided email/username!");
+  }
+
+  if (!user.phoneNumber) {
+    return { 
+      hasPhone: false,
+      message: "User does not have a registered phone number. Please contact support." 
+    };
+  }
+
+  return { 
+    hasPhone: true,
+    maskedPhone: user.phoneNumber.replace(/(\d{2})(\d{6})(\d{2})/, "$1******$3"),
+    message: "Phone number found! Proceed with password reset." 
+  };
+};
+
+const getAllUsers = async (page: number = 1, limit: number = 10) => {
+  const skip = (page - 1) * limit;
+  
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        displayName: true,
+        phoneNumber: true,
+        role: true,
+        isVerified: true,
+        isAdminBan: true,
+        banReason: true,
+        createdAt: true,
+        updatedAt: true,
+      }
+    }),
+    prisma.user.count()
+  ]);
+
+  return {
+    users,
+    metadata: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
+  };
+};
+
 export {
   handleUserSignIn,
   handleUserSignUp,
@@ -444,4 +518,6 @@ export {
   handleVerifyOTP,
   handleSendNewOTP,
   handleBanUser,
+  checkPhoneNumber,
+  getAllUsers,
 };
