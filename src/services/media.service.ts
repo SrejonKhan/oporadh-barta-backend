@@ -4,17 +4,23 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { uploadBuffer } from "./upload.service";
 import { ApiError as AppError } from "../utils/error";
 import httpStatus from "http-status";
-import fs from "fs";
+import { addWatermark } from "./image.service";
 
 const prisma = new PrismaClient();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-export const uploadMedia = async (file: Express.Multer.File, type: MediaType) => {
+export const uploadMedia = async (file: Express.Multer.File, type: MediaType, username: string) => {
   if (!file) throw new AppError(httpStatus.BAD_REQUEST, "File not found");
 
   const uniqueFileName = `${Date.now()}-${file.originalname}`;
+  let processedBuffer = file.buffer;
 
-  const key = await uploadBuffer(file.buffer, uniqueFileName, `media/${type}/${uniqueFileName}`);
+  // Add watermark only to images
+  if (type === MediaType.IMAGE) {
+    processedBuffer = await addWatermark(file.buffer, username);
+  }
+
+  const key = await uploadBuffer(processedBuffer, uniqueFileName, `media/${type}/${uniqueFileName}`);
   return key;
 };
 

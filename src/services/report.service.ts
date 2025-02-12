@@ -38,9 +38,15 @@ export const createCrimeReport = async (userEmail, title, description, location,
       },
     });
 
-    // Upload media files
+    // Upload media files with watermark
     const mediaUrls = await Promise.all(
-      mediaFiles.map((file) => uploadMedia(file, file.mimetype.startsWith("image/") ? MediaType.IMAGE : MediaType.VIDEO))
+      mediaFiles.map((file) => 
+        uploadMedia(
+          file, 
+          file.mimetype.startsWith("image/") ? MediaType.IMAGE : MediaType.VIDEO,
+          user.username // Pass username for watermark
+        )
+      )
     );
 
     // Generate description if needed
