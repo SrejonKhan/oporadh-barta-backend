@@ -1,5 +1,5 @@
 import express from "express";
-import { reportCrime } from "../../controllers/report.controller";
+import { reportCrime, upvoteReport, downvoteReport } from "../../controllers/report.controller";
 import { hasRole } from "../../middlewares/auth.middleware";
 import multer from "multer";
 import { ApiError as AppError } from "../../utils/error";
@@ -28,5 +28,8 @@ crimeReportRouter.post(
   upload.array("media", 5), // Max 5 files
   reportCrime
 );
+
+crimeReportRouter.post("/upvote/:id", hasRole(["*"]), upvoteReport);
+crimeReportRouter.post("/downvote/:id", hasRole(["*"]), downvoteReport);
 
 export default crimeReportRouter;

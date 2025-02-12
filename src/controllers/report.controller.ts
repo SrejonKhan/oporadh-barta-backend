@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createCrimeReportSchema } from "../schemas/report.schema";
-import { createCrimeReport } from "../services/report.service";
+import { createCrimeReport, handleUpvote, handleDownvote } from "../services/report.service";
 import httpStatus from "http-status";
 
 export const reportCrime = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,6 +29,26 @@ export const reportCrime = async (req: Request, res: Response, next: NextFunctio
     };
 
     res.status(httpStatus.CREATED).send(body);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+export const upvoteReport = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const reportId = parseInt(req.params.id);
+    const response = await handleUpvote(reportId, req.user.id);
+    res.status(httpStatus.OK).send(response);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+export const downvoteReport = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const reportId = parseInt(req.params.id);
+    const response = await handleDownvote(reportId, req.user.id);
+    res.status(httpStatus.OK).send(response);
   } catch (ex) {
     next(ex);
   }

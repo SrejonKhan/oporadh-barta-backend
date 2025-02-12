@@ -112,3 +112,158 @@ export const createCrimeReport = async (
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to create crime report");
   }
 };
+
+export const handleUpvote = async (reportId: number, userId: number) => {
+  try {
+    // Check if report exists
+    const report = await prisma.crimeReport.findUnique({
+      where: { id: reportId },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+        location: true,
+        media: true,
+      },
+    });
+
+    if (!report) {
+      throw new AppError(httpStatus.NOT_FOUND, "Report not found");
+    }
+
+    // Don't allow self-voting
+    if (report.reporterId === userId) {
+      throw new AppError(httpStatus.FORBIDDEN, "You cannot vote on your own report");
+    }
+
+    // Update upvotes
+    const updatedReport = await prisma.crimeReport.update({
+      where: { id: reportId },
+      data: {
+        upvotes: {
+          increment: 1,
+        },
+      },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+        location: true,
+        media: true,
+      },
+    });
+
+    logger.info(`Report ${reportId} upvoted by user ${userId}`);
+
+    return {
+      message: "Successfully upvoted the report",
+      report: updatedReport,
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    logger.error("Upvote Error:", error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upvote report");
+  }
+};
+
+export const handleDownvote = async (reportId: number, userId: number) => {
+  try {
+    // Check if report exists
+    const report = await prisma.crimeReport.findUnique({
+      where: { id: reportId },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+        location: true,
+        media: true,
+      },
+    });
+
+    if (!report) {
+      throw new AppError(httpStatus.NOT_FOUND, "Report not found");
+    }
+
+    // Don't allow self-voting
+    if (report.reporterId === userId) {
+      throw new AppError(httpStatus.FORBIDDEN, "You cannot vote on your own report");
+    }
+
+    // Update downvotes
+    const updatedReport = await prisma.crimeReport.update({
+      where: { id: reportId },
+      data: {
+        downvotes: {
+          increment: 1,
+        },
+      },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+        location: true,
+        media: true,
+      },
+    });
+
+    logger.info(`Report ${reportId} downvoted by user ${userId}`);
+
+    return {
+      message: "Successfully downvoted the report",
+      report: updatedReport,
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    logger.error("Downvote Error:", error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to downvote report");
+  }
+};
+
+// Add a function to get report details with vote counts
+export const getReportDetails = async (reportId: number) => {
+  try {
+    const report = await prisma.crimeReport.findUnique({
+      where: { id: reportId },
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+        location: true,
+        media: true,
+      },
+    });
+
+    if (!report) {
+      throw new AppError(httpStatus.NOT_FOUND, "Report not found");
+    }
+
+    return {
+      message: "Report details retrieved successfully",
+      report,
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    logger.error("Get Report Details Error:", error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to get report details");
+  }
+};
