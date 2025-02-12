@@ -104,7 +104,7 @@ export const createCrimeReport = async (
 
     return {
       message: "Crime report created successfully",
-      report,
+      report: JSON.stringify(report),
     };
   } catch (error) {
     if (error instanceof AppError) throw error;
