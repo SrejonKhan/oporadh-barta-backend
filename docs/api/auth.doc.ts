@@ -6,6 +6,7 @@ import {
   changePasswordSchema,
   redeemChangePasswordSchema,
   googleOAuth2SignInSchema,
+  verifyOtpSchema,
 } from "../../src/schemas/auth.schema";
 import { bearerAuth, registry } from "./generator";
 
@@ -179,6 +180,48 @@ registry.registerPath({
   responses: {
     200: {
       description: "Object with the user profile.",
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/auth/verify-otp",
+  summary: "Verify OTP.",
+  description: `Verify OTP for the user.`,
+  security: [{ [bearerAuth.name]: [] }],
+  tags: ["Authentication"],
+  request: {
+    body: {
+      content: {
+        "application/json": { schema: verifyOtpSchema },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Object with a message.",
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/auth/send-new-otp",
+  summary: "Send new OTP.",
+  description: `Send new OTP for the user.`,
+  security: [{ [bearerAuth.name]: [] }],
+  tags: ["Authentication"],
+  request: {
+    body: {
+      content: {
+        "application/json": { schema: z.object({}) },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Object with a message.",
     },
   },
 });

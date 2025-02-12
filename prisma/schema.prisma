@@ -18,13 +18,13 @@ model User {
   createdAt              DateTime                @default(now())
   email                  String                  @unique
   username               String                  @unique
-  phoneNumber            String                  @unique
+  phoneNumber            String
   displayName            String?
   passwordHash           String
   isVerified             Boolean                 @default(false)
   role                   Role                    @default(USER)
   authType               AuthType                @default(EMAILPASS)
-  otpSecret              OtpSecret[]          
+  otpSecret              OtpSecret[]
   userProfile            UserProfile?
   changePasswordRequests ChangePasswordRequest[]
 }
@@ -33,7 +33,7 @@ model OtpSecret {
   id        Int      @id @default(autoincrement())
   secret    String   @unique
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  userId    Int
   createdAt DateTime @default(now())
 }
 
