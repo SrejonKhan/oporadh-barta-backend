@@ -15,7 +15,7 @@ export const addWatermark = async (imageBuffer: Buffer, username: string): Promi
           }
         </style>
         <text x="50%" y="50%" text-anchor="middle" style="fill: yellow;">
-          ${username}
+          ${username} upload diyeche, haha
         </text>
       </svg>
     `);
@@ -25,7 +25,7 @@ export const addWatermark = async (imageBuffer: Buffer, username: string): Promi
       .composite([
         {
           input: svgBuffer,
-          gravity: "southeast",
+          gravity: "center",
           blend: "over",
         },
       ])
