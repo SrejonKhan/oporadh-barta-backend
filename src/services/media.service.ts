@@ -16,11 +16,6 @@ export const uploadMedia = async (file: Express.Multer.File, type: MediaType, us
   const uniqueFileName = `${Date.now()}-${file.originalname}`;
   let processedBuffer = file.buffer;
 
-  // Add watermark only to images
-  processedBuffer = await addWatermark(file.buffer, username);
-  if (type === MediaType.IMAGE) {
-  }
-
   // Optimize image using sharp
   try {
     processedBuffer = await sharp(file.buffer)
@@ -29,6 +24,11 @@ export const uploadMedia = async (file: Express.Multer.File, type: MediaType, us
       .toBuffer();
   } catch {
     console.error("Failed to optimize image");
+  }
+
+  // Add watermark only to images
+  processedBuffer = await addWatermark(file.buffer, username);
+  if (type === MediaType.IMAGE) {
   }
 
   const key = await uploadBuffer(processedBuffer, uniqueFileName, `media/${type}/${uniqueFileName}`);
