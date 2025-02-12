@@ -31,5 +31,5 @@ crimeReportRouter.post(
 
 crimeReportRouter.post("/upvote/:id", hasRole(["*"]), upvoteReport);
 crimeReportRouter.post("/downvote/:id", hasRole(["*"]), downvoteReport);
-crimeReportRouter.get("/all", hasRole(["*"]), getAllReports);
+crimeReportRouter.get("/all", getAllReports);
 export default crimeReportRouter;
