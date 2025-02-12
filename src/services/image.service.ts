@@ -1,11 +1,13 @@
+import fs from "fs";
 import sharp from "sharp";
 import { Buffer } from "buffer";
+import path from "path";
 
 export const addWatermark = async (imageBuffer: Buffer, username: string): Promise<Buffer> => {
   try {
     // Create a buffer with the watermark text
     const svgBuffer = Buffer.from(`
-      <svg width="100" height="50">
+      <svg width="300" height="200">
         <style>
           .text {
             fill: rgba(255, 255, 255, 0.5);
@@ -14,11 +16,14 @@ export const addWatermark = async (imageBuffer: Buffer, username: string): Promi
             font-family: Arial, sans-serif;
           }
         </style>
-        <text x="50%" y="50%" text-anchor="middle" style="fill: yellow;">
-          ${username} upload diyeche, haha
+        <text x="100%" y="100%" text-anchor="middle">
+          ${username}
         </text>
       </svg>
     `);
+
+    // readd png buffer from abu_sayeed.png file from the same directory of this script
+    const overlayBuffer = Buffer.from(fs.readFileSync(path.join(__dirname, "abu_sayeed.png")));
 
     // Process the image with sharp
     const processedImageBuffer = await sharp(imageBuffer)
@@ -28,6 +33,7 @@ export const addWatermark = async (imageBuffer: Buffer, username: string): Promi
           gravity: "center",
           blend: "over",
         },
+        { input: overlayBuffer, gravity: "southeast" },
       ])
       .toBuffer();
 
