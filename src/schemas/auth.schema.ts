@@ -84,6 +84,15 @@ const sendNewOtpSchema = z.object({}).openapi({
   description: "Send New OTP Schema.",
 });
 
+const banUserSchema = z
+  .object({
+    email: z.string().email(),
+    reason: z.string(),
+  })
+  .openapi({
+    description: "Send New OTP Schema.",
+  });
+
 export {
   signInSchema,
   signUpSchema,
@@ -93,4 +102,5 @@ export {
   googleOAuth2SignInSchema,
   verifyOtpSchema,
   sendNewOtpSchema,
+  banUserSchema,
 };

@@ -5,6 +5,7 @@ import config from "../config/base.config";
 import httpStatus from "http-status";
 import { Role } from "@prisma/client";
 import logger from "../utils/logger";
+import prisma from "../lib/prisma";
 
 const getAccessToken = (authHeader: string) => {
   if (!authHeader) {
@@ -66,6 +67,17 @@ const hasRole = (roles: (Role | string)[], negRoles?: Role[]) => {
 
       if (!authorized)
         throw new ApiError(httpStatus.UNAUTHORIZED, "Unauthorized! Required Role is not present in the User!");
+
+      // if user is banned, throw error
+      // get the user from db
+      const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+      if (!dbUser) {
+        throw new ApiError(httpStatus.UNAUTHORIZED, "User not found!");
+      }
+
+      if (dbUser.isAdminBan) {
+        throw new ApiError(httpStatus.FORBIDDEN, "User is banned by the Admins!");
+      }
 
       next();
     } catch (ex) {

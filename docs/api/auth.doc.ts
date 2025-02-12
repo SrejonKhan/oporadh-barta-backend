@@ -7,6 +7,7 @@ import {
   redeemChangePasswordSchema,
   googleOAuth2SignInSchema,
   verifyOtpSchema,
+  banUserSchema,
 } from "../../src/schemas/auth.schema";
 import { bearerAuth, registry } from "./generator";
 
@@ -216,6 +217,29 @@ registry.registerPath({
     body: {
       content: {
         "application/json": { schema: z.object({}) },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Object with a message.",
+    },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/auth/ban-user",
+  summary: "Ban User.",
+  description: `Ban user by email.`,
+  security: [{ [bearerAuth.name]: [] }],
+  tags: ["Authentication"],
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: banUserSchema,
+        },
       },
     },
   },

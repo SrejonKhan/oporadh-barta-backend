@@ -1,5 +1,6 @@
 import httpStatus from "http-status";
 import {
+  banUserSchema,
   changePasswordSchema,
   googleOAuth2SignInSchema,
   redeemChangePasswordSchema,
@@ -11,6 +12,7 @@ import {
 import {
   exchangeAccessToken,
   findUserByEmail,
+  handleBanUser,
   handleChangePassword,
   handleGoogleSignIn,
   handleRedeemChangePassword,
@@ -178,6 +180,18 @@ const sendNewOtp = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const banUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const payload = banUserSchema.parse(req.body);
+    const { email, reason } = payload;
+
+    const body = await handleBanUser(email, reason);
+
+    res.status(httpStatus.OK).send(body);
+  } catch (ex) {
+    next(ex);
+  }
+};
 export {
   signIn,
   signUp,
@@ -188,4 +202,5 @@ export {
   googleOAuth2SignIn,
   verifyOtp,
   sendNewOtp,
+  banUser,
 };

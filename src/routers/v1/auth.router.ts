@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  banUser,
   changePassword,
   googleOAuth2SignIn,
   redeemChangePassword,
@@ -25,5 +26,6 @@ authRouter.post("/refresh", refreshAccessToken);
 authRouter.post("/google-signin", googleOAuth2SignIn);
 authRouter.post("/verify-otp", hasRole(["*"]), verifyOtp);
 authRouter.post("/send-new-otp", hasRole(["*"]), sendNewOtp);
+authRouter.post("/ban-user", hasRole([Role.ADMIN]), banUser);
 
 export default authRouter;

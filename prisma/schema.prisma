@@ -22,6 +22,8 @@ model User {
   displayName            String?
   passwordHash           String
   isVerified             Boolean                 @default(false)
+  isAdminBan             Boolean                 @default(false)
+  banReason              String?
   role                   Role                    @default(USER)
   authType               AuthType                @default(EMAILPASS)
   otpSecret              OtpSecret[]

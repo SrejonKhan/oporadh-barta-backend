@@ -411,6 +411,27 @@ const handleSendNewOTP = async (email: string) => {
   return { message: "New OTP sent successfully!" };
 };
 
+const handleBanUser = async (email: string, banReason: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email: email },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "User not found with the provided wmail!");
+  }
+
+  await prisma.user.update({
+    where: {
+      email: email,
+    },
+    data: {
+      isAdminBan: true,
+      banReason: banReason,
+    },
+  });
+
+  return { message: "User is banned successfully!" };
+};
 export {
   handleUserSignIn,
   handleUserSignUp,
@@ -422,4 +443,5 @@ export {
   handleGoogleSignIn,
   handleVerifyOTP,
   handleSendNewOTP,
+  handleBanUser,
 };
