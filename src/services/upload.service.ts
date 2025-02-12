@@ -23,13 +23,13 @@ const uploadFile = async (filepath: string, filename: string, key: string) => {
   return key;
 };
 
-export const uploadBuffer = async (buffer: Buffer, filename: string, key: string): Promise<string> => {
+const uploadBuffer = async (buffer: Buffer, filename: string, key: string): Promise<string> => {
   const command = new PutObjectCommand({
     Bucket: "your-bucket-name",
     Key: key,
     Body: buffer,
-    ContentType: `image/${filename.split('.').pop()}`,
-    ACL: 'public-read',
+    ContentType: `image/${filename.split(".").pop()}`,
+    ACL: "public-read",
   });
 
   await s3Client.send(command);
