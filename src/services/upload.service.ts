@@ -25,7 +25,7 @@ const uploadFile = async (filepath: string, filename: string, key: string) => {
 
 const uploadBuffer = async (buffer: Buffer, filename: string, key: string): Promise<string> => {
   const command = new PutObjectCommand({
-    Bucket: "your-bucket-name",
+    Bucket: "oporadh-barta",
     Key: key,
     Body: buffer,
     ContentType: `image/${filename.split(".").pop()}`,
