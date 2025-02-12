@@ -104,7 +104,7 @@ export const createCrimeReport = async (
 
     return {
       message: "Crime report created successfully",
-      report: JSON.stringify(report),
+      report: report,
     };
   } catch (error) {
     // if (error instanceof AppError) throw error;
@@ -169,7 +169,6 @@ export const handleUpvote = async (reportId: number, userId: number) => {
       report: updatedReport,
     };
   } catch (error) {
-    if (error instanceof AppError) throw error;
     logger.error("Upvote Error:", error);
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to upvote report");
   }

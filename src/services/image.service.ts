@@ -1,11 +1,11 @@
-import sharp from 'sharp';
-import { Buffer } from 'buffer';
+import sharp from "sharp";
+import { Buffer } from "buffer";
 
 export const addWatermark = async (imageBuffer: Buffer, username: string): Promise<Buffer> => {
-    try {
-        // Create a buffer with the watermark text
-        const svgBuffer = Buffer.from(`
-      <svg width="500" height="50">
+  try {
+    // Create a buffer with the watermark text
+    const svgBuffer = Buffer.from(`
+      <svg width="100" height="50">
         <style>
           .text {
             fill: rgba(255, 255, 255, 0.5);
@@ -14,27 +14,26 @@ export const addWatermark = async (imageBuffer: Buffer, username: string): Promi
             font-family: Arial, sans-serif;
           }
         </style>
-        <text x="50%" y="50%" text-anchor="middle" class="text">
+        <text x="50%" y="50%" text-anchor="middle" style="fill: yellow;">
           ${username}
         </text>
       </svg>
     `);
 
-        // Process the image with sharp
-        const processedImageBuffer = await sharp(imageBuffer)
-            .composite([
-                {
-                    input: svgBuffer,
-                    gravity: 'southeast', // Position watermark at bottom-right
-                    blend: 'over'
-                }
-            ])
-            .jpeg({ quality: 90 }) // Maintain good quality while reducing size
-            .toBuffer();
+    // Process the image with sharp
+    const processedImageBuffer = await sharp(imageBuffer)
+      .composite([
+        {
+          input: svgBuffer,
+          gravity: "southeast",
+          blend: "over",
+        },
+      ])
+      .toBuffer();
 
-        return processedImageBuffer;
-    } catch (error) {
-        console.error('Error adding watermark:', error);
-        throw error;
-    }
-}; 
+    return processedImageBuffer;
+  } catch (error) {
+    console.error("Error adding watermark:", error);
+    throw error;
+  }
+};

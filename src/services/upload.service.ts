@@ -33,7 +33,7 @@ const uploadBuffer = async (buffer: Buffer, filename: string, key: string): Prom
   });
 
   await s3Client.send(command);
-  return `${process.env.AWS_S3_ENDPOINT}/your-bucket-name/${key}`;
+  return `${process.env.AWS_S3_ENDPOINT}/oporadh-barta/${key}`;
 };
 
 const removeFile = async (key: string) => {

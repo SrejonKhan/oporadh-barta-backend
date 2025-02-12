@@ -26,7 +26,7 @@ export const uploadMedia = async (file: Express.Multer.File, type: MediaType, us
     try {
       processedBuffer = await sharp(file.buffer)
         .resize({ width: 800, height: 800, fit: sharp.fit.inside, withoutEnlargement: true }) // Resize to fit within 800x800, maintaining aspect ratio
-        .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
+        .jpeg({ quality: 30 }) // Convert to JPEG with 30% quality
         .toBuffer();
     } catch {
       console.error("Failed to optimize image");
