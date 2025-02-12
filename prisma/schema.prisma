@@ -27,6 +27,7 @@ model User {
   otpSecret              OtpSecret[]          
   userProfile            UserProfile?
   changePasswordRequests ChangePasswordRequest[]
+  crimeReports           CrimeReport[]
 }
 
 model OtpSecret {
@@ -79,4 +80,51 @@ model ChangePasswordRequest {
   requestedAt  DateTime @default(now())
   user         User     @relation(fields: [userId], references: [id])
   userId       Int      @unique
+}
+
+model CrimeReport {
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  title       String
+  description String
+  location    Location   @relation(fields: [locationId], references: [id], name: "LocationReports")
+  locationId  Int
+  media       Media[]
+  status      ReportStatus @default(PENDING)
+  reporter    User     @relation(fields: [reporterId], references: [id])
+  reporterId  Int
+}
+
+
+model Location {
+  id         Int           @id @default(autoincrement())
+  division   String
+  district   String
+  fullAddress String?
+  latitude   Float?
+  longitude  Float?
+  reports    CrimeReport[] @relation("LocationReports") // Explicit relation name
+}
+
+
+model Media {
+  id           Int        @id @default(autoincrement())
+  url          String
+  type         MediaType
+  crimeReport  CrimeReport @relation(fields: [reportId], references: [id])
+  reportId     Int
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum ReportStatus {
+  PENDING
+  INVESTIGATING
+  RESOLVED
+  REJECTED
+  VERIFIED
 }
