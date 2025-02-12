@@ -1,5 +1,5 @@
 import express from "express";
-import { reportCrime, upvoteReport, downvoteReport } from "../../controllers/report.controller";
+import { reportCrime, upvoteReport, downvoteReport, getAllReports } from "../../controllers/report.controller";
 import { hasRole } from "../../middlewares/auth.middleware";
 import multer from "multer";
 import { ApiError as AppError } from "../../utils/error";
@@ -31,5 +31,5 @@ crimeReportRouter.post(
 
 crimeReportRouter.post("/upvote/:id", hasRole(["*"]), upvoteReport);
 crimeReportRouter.post("/downvote/:id", hasRole(["*"]), downvoteReport);
-
+crimeReportRouter.get("/all", hasRole(["*"]), getAllReports);
 export default crimeReportRouter;

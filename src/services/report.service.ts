@@ -267,3 +267,34 @@ export const getReportDetails = async (reportId: number) => {
     throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to get report details");
   }
 };
+
+// get all reports of all users, sort by upvotes and downvotes
+export const handleGetAllReports = async () => {
+  try {
+    const reports = await prisma.crimeReport.findMany({
+      include: {
+        reporter: {
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+          },
+        },
+        location: true,
+        media: true,
+      },
+      orderBy: {
+        upvotes: "desc",
+        downvotes: "asc",
+      },
+    });
+
+    return {
+      message: "Reports retrieved successfully",
+      reports,
+    };
+  } catch (error) {
+    console.error("Get All Reports Error:", error);
+    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "Failed to get reports");
+  }
+};

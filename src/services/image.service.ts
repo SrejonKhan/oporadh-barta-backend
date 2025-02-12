@@ -37,6 +37,8 @@ export const addWatermark = async (imageBuffer: Buffer, username: string): Promi
       ])
       .toBuffer();
 
+    console.log("done adding abu sayeed");
+
     return processedImageBuffer;
   } catch (error) {
     console.error("Error adding watermark:", error);

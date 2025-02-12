@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createCrimeReportSchema } from "../schemas/report.schema";
-import { createCrimeReport, handleUpvote, handleDownvote } from "../services/report.service";
+import { createCrimeReport, handleUpvote, handleDownvote, handleGetAllReports } from "../services/report.service";
 import httpStatus from "http-status";
 
 export const reportCrime = async (req: Request, res: Response, next: NextFunction) => {
@@ -48,6 +48,15 @@ export const downvoteReport = async (req: Request, res: Response, next: NextFunc
   try {
     const reportId = parseInt(req.params.id);
     const response = await handleDownvote(reportId, req.user.id);
+    res.status(httpStatus.OK).send(response);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+export const getAllReports = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const response = await handleGetAllReports();
     res.status(httpStatus.OK).send(response);
   } catch (ex) {
     next(ex);
