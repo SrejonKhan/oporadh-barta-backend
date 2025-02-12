@@ -72,6 +72,27 @@ const googleOAuth2SignInSchema = z
     description: "Google OAuth2 SignIn Schema.",
   });
 
+const verifyOtpSchema = z
+  .object({
+    otp: z.string().length(6),
+  })
+  .openapi({
+    description: "Verify OTP Schema.",
+  });
+
+const sendNewOtpSchema = z.object({}).openapi({
+  description: "Send New OTP Schema.",
+});
+
+const banUserSchema = z
+  .object({
+    email: z.string().email(),
+    reason: z.string(),
+  })
+  .openapi({
+    description: "Send New OTP Schema.",
+  });
+
 export {
   signInSchema,
   signUpSchema,
@@ -79,4 +100,7 @@ export {
   redeemChangePasswordSchema,
   refreshAccessTokenSchema,
   googleOAuth2SignInSchema,
+  verifyOtpSchema,
+  sendNewOtpSchema,
+  banUserSchema,
 };

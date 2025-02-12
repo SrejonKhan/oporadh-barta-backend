@@ -1,20 +1,25 @@
 import httpStatus from "http-status";
 import {
+  banUserSchema,
   changePasswordSchema,
   googleOAuth2SignInSchema,
   redeemChangePasswordSchema,
   refreshAccessTokenSchema,
   signInSchema,
   signUpSchema,
+  verifyOtpSchema,
 } from "../schemas/auth.schema";
 import {
   exchangeAccessToken,
   findUserByEmail,
+  handleBanUser,
   handleChangePassword,
   handleGoogleSignIn,
   handleRedeemChangePassword,
+  handleSendNewOTP,
   handleUserSignIn,
   handleUserSignUp,
+  handleVerifyOTP,
 } from "../services/auth.service";
 import logger from "../utils/logger";
 import { NextFunction, Request, Response } from "express";
@@ -151,4 +156,51 @@ const googleOAuth2SignIn = async (req: Request, res: Response, next: NextFunctio
   }
 };
 
-export { signIn, signUp, whoami, changePassword, redeemChangePassword, refreshAccessToken, googleOAuth2SignIn };
+const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const payload = verifyOtpSchema.parse(req.body);
+    const { otp } = payload;
+
+    // const user = await findUserByEmail(req.user.email);
+
+    const body = await handleVerifyOTP(req.user.email, otp);
+    res.status(httpStatus.OK).send(body);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+const sendNewOtp = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const body = await handleSendNewOTP(req.user.email);
+
+    res.status(httpStatus.OK).send(body);
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+const banUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const payload = banUserSchema.parse(req.body);
+    const { email, reason } = payload;
+
+    const body = await handleBanUser(email, reason);
+
+    res.status(httpStatus.OK).send(body);
+  } catch (ex) {
+    next(ex);
+  }
+};
+export {
+  signIn,
+  signUp,
+  whoami,
+  changePassword,
+  redeemChangePassword,
+  refreshAccessToken,
+  googleOAuth2SignIn,
+  verifyOtp,
+  sendNewOtp,
+  banUser,
+};
