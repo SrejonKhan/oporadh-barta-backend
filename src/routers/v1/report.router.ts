@@ -1,5 +1,5 @@
 import express from "express";
-import { reportCrime } from "../../controllers/crime-report.controller";
+import { reportCrime } from "../../controllers/report.controller";
 import { hasRole } from "../../middlewares/auth.middleware";
 import multer from "multer";
 import { ApiError as AppError } from "../../utils/error";
@@ -14,19 +14,19 @@ const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     // Accept images and videos only
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+    if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) {
       cb(null, true);
     } else {
       cb(new AppError(httpStatus.BAD_REQUEST, "Only images and videos are allowed"));
     }
-  }
+  },
 });
 
 crimeReportRouter.post(
-  "/report",
+  "/create-report",
   hasRole(["USER", "ADMIN"]),
-  upload.array('media', 5), // Max 5 files
+  upload.array("media", 5), // Max 5 files
   reportCrime
 );
 
-export default crimeReportRouter; 
+export default crimeReportRouter;

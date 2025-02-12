@@ -11,6 +11,7 @@ extendZodWithOpenApi(z);
 import authRouter from "./routers/v1/auth.router";
 import { globalErrorHandler, notFoundHandler } from "./middlewares/error.middleware";
 import docsRouter from "./routers/v1/docs.router";
+import reportRouter from "./routers/v1/report.router";
 
 const server = express();
 
@@ -26,6 +27,7 @@ if (config.ENV === "development") {
 /*-------------------ROUTERS-------------------*/
 server.use("/api/v1/auth", authRouter);
 server.use("/docs", docsRouter);
+server.use("/api/v1/report", reportRouter);
 server.get("/", (req, res) => {
   return res.status(httpStatus.OK).send({ message: "The Server is running successfully!" });
 });

@@ -10,7 +10,11 @@ const prisma = new PrismaClient();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export const uploadMedia = async (file: Express.Multer.File, type: MediaType) => {
-  const key = await uploadBuffer(file.buffer, file.originalname, type);
+  if (!file) throw new AppError(httpStatus.BAD_REQUEST, "File not found");
+
+  const uniqueFileName = `${Date.now()}-${file.originalname}`;
+
+  const key = await uploadBuffer(file.buffer, uniqueFileName, `media/${type}/${uniqueFileName}`);
   return key;
 };
 
